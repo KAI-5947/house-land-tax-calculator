@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>房地合一稅單機列印版 v1.3</title>
+  <title>房地合一稅單機列印版 v1.4</title>
   <style>
     :root {
       --primary: #1f4e5f;
@@ -16,6 +16,8 @@
       --border: #d8dee4;
       --danger: #b42318;
       --success: #0f766e;
+      --warning-bg: #fff7ed;
+      --warning-border: #f59e0b;
     }
 
     * {
@@ -122,6 +124,35 @@
       margin-top: 4px;
     }
 
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 15px;
+    }
+
+    .check-item input {
+      width: auto;
+      margin-top: 5px;
+    }
+
+    .check-item label {
+      font-weight: 600;
+      margin: 0;
+      cursor: pointer;
+    }
+
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -187,10 +218,6 @@
 
     .metric .danger {
       color: var(--danger);
-    }
-
-    .metric .success {
-      color: var(--success);
     }
 
     .report {
@@ -259,9 +286,33 @@
       margin-top: 12px;
     }
 
-    .small {
-      font-size: 13px;
-      color: var(--muted);
+    .risk-box {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      border-left: 5px solid var(--warning-border);
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .risk-box ul,
+    .doc-list ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+
+    .risk-box li,
+    .doc-list li {
+      margin-bottom: 6px;
+    }
+
+    .doc-list {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--primary);
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-top: 10px;
     }
 
     .footer-note {
@@ -278,7 +329,8 @@
       }
 
       .grid,
-      .result-grid {
+      .result-grid,
+      .checkbox-grid {
         grid-template-columns: 1fr;
       }
 
@@ -335,8 +387,8 @@
     <section class="hero">
       <h1>房地合一稅單機列印版</h1>
       <p>專業報告版｜輸入案件資料後，自動試算稅額並產生 A4 列印報告。</p>
-      <p>適合同事內部試算、成交前溝通、客戶初步說明使用。</p>
-      <span class="version">v1.3 專業報告版</span>
+      <p>v1.4 新增：應補資料清單、稅務風險提醒、案件特殊情況勾選。</p>
+      <span class="version">v1.4 應補資料清單與風險提醒版</span>
     </section>
 
     <div class="grid">
@@ -401,13 +453,11 @@
         <div class="form-row">
           <label for="buyExpense">取得相關費用</label>
           <input id="buyExpense" type="number" min="0" placeholder="例：300000" />
-          <div class="hint">例如契稅、印花稅、代書費、規費、仲介費、必要改良費用等。</div>
         </div>
 
         <div class="form-row">
           <label for="sellExpense">出售相關費用</label>
           <input id="sellExpense" type="number" min="0" placeholder="例：600000" />
-          <div class="hint">例如仲介費、廣告費、清潔費、搬運費、印花稅、代書費、規費等。</div>
         </div>
 
         <div class="form-row">
@@ -440,6 +490,53 @@
           <label for="manualRate">手動稅率</label>
           <input id="manualRate" type="number" min="0" max="100" placeholder="例：20" />
           <div class="hint">選擇「手動輸入稅率」時才使用。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>四、案件特殊情況勾選</h2>
+      <p class="hint">這些選項不會直接改變主試算金額，但會出現在報告的風險提醒與應補資料清單中。</p>
+
+      <div class="checkbox-grid">
+        <div class="check-item">
+          <input id="riskCostUnknown" type="checkbox" />
+          <label for="riskCostUnknown">取得成本尚待確認</label>
+        </div>
+
+        <div class="check-item">
+          <input id="riskSelfUse" type="checkbox" />
+          <label for="riskSelfUse">可能適用自住房地優惠</label>
+        </div>
+
+        <div class="check-item">
+          <input id="riskRepurchase" type="checkbox" />
+          <label for="riskRepurchase">可能涉及重購退稅</label>
+        </div>
+
+        <div class="check-item">
+          <input id="riskInheritance" type="checkbox" />
+          <label for="riskInheritance">取得原因為繼承</label>
+        </div>
+
+        <div class="check-item">
+          <input id="riskGift" type="checkbox" />
+          <label for="riskGift">取得原因為贈與</label>
+        </div>
+
+        <div class="check-item">
+          <input id="riskDateUnclear" type="checkbox" />
+          <label for="riskDateUnclear">持有期間或日期尚待確認</label>
+        </div>
+
+        <div class="check-item">
+          <input id="riskExpenseMissing" type="checkbox" />
+          <label for="riskExpenseMissing">費用憑證尚未齊全</label>
+        </div>
+
+        <div class="check-item">
+          <input id="riskCompany" type="checkbox" />
+          <label for="riskCompany">可能涉及法人或公司出售</label>
         </div>
       </div>
 
@@ -477,7 +574,7 @@
     <section id="printReport" class="report">
       <div class="report-header">
         <h2>房地合一稅初步試算報告</h2>
-        <p>v1.3 專業報告版｜本報告為成交前初步評估使用</p>
+        <p>v1.4 應補資料清單與風險提醒版｜本報告為成交前初步評估使用</p>
       </div>
 
       <div class="section-title">一、案件基本資料</div>
@@ -557,6 +654,16 @@
         請先輸入資料並按下「計算並產生報告」，系統將自動產生初步說明。
       </div>
 
+      <div class="section-title">五、稅務風險提醒</div>
+      <div id="riskReminder" class="risk-box">
+        尚未產生風險提醒。請先輸入資料並按下「計算並產生報告」。
+      </div>
+
+      <div class="section-title">六、後續應補資料清單</div>
+      <div id="documentList" class="doc-list">
+        尚未產生應補資料清單。請先輸入資料並按下「計算並產生報告」。
+      </div>
+
       <div class="footer-note">
         注意事項：本試算結果僅供成交前初步評估使用，實際稅額仍應依國稅局核定、完整取得成本、費用憑證、土地增值稅資料及相關法令規定為準。本工具不儲存個資或案件資料，重新整理頁面後資料可能消失。
       </div>
@@ -572,6 +679,10 @@
     function textValue(id) {
       const value = document.getElementById(id).value;
       return value && value.trim() !== "" ? value.trim() : "-";
+    }
+
+    function checked(id) {
+      return document.getElementById(id).checked;
     }
 
     function formatMoney(num) {
@@ -723,6 +834,95 @@
       });
     }
 
+    function buildRiskReminders(data) {
+      const risks = [];
+
+      if (data.years === null || checked("riskDateUnclear")) {
+        risks.push("取得日期或出售日期尚未完整確認，持有期間會直接影響適用稅率，應先補齊日期資料。");
+      }
+
+      if (data.rate === 45) {
+        risks.push("本案初步判斷持有期間偏短，可能適用較高稅率，建議成交前再次確認取得日、出售日與稅率條件。");
+      }
+
+      if (checked("riskCostUnknown") || data.buyCost === 0) {
+        risks.push("取得成本尚待確認。若取得成本資料不足，可能影響課稅所得與稅額估算，應補買賣契約、繳款紀錄或相關證明。");
+      }
+
+      if (checked("riskExpenseMissing")) {
+        risks.push("費用憑證尚未齊全。可扣除費用通常需要憑證佐證，若憑證不足，實際可扣除金額可能低於本次試算。");
+      }
+
+      if (checked("riskSelfUse") || data.mode === "selfUse") {
+        risks.push("本案可能主張自住房地優惠，仍需確認設籍期間、無出租營業、本人配偶或未成年子女適用限制等條件。");
+      }
+
+      if (checked("riskRepurchase")) {
+        risks.push("本案可能涉及重購退稅，需確認出售與重購時間、本人配偶或未成年子女名義、重購價格與相關申請期限。");
+      }
+
+      if (checked("riskInheritance")) {
+        risks.push("本案取得原因涉及繼承，需進一步確認繼承取得日、被繼承人原始取得資料、遺產稅資料及成本認定方式。");
+      }
+
+      if (checked("riskGift")) {
+        risks.push("本案取得原因涉及贈與，需確認贈與稅資料、贈與時房屋評定現值、土地公告現值及後續成本認定。");
+      }
+
+      if (checked("riskCompany")) {
+        risks.push("本案可能涉及法人或公司出售，不宜直接套用個人房地合一稅模式，建議改由會計師或稅務專業人員另行確認。");
+      }
+
+      if (data.mode === "manual") {
+        risks.push("目前使用手動輸入稅率，請確認該稅率的法令依據與適用條件，避免報告誤導。");
+      }
+
+      if (risks.length === 0) {
+        risks.push("依目前輸入資料，尚未發現明顯高風險提示；但仍應以正式契約、憑證與國稅局核定結果為準。");
+      }
+
+      return risks;
+    }
+
+    function buildDocumentList(data) {
+      const docs = [
+        "原取得買賣契約書或取得來源證明",
+        "出售買賣契約書或預估成交條件資料",
+        "土地增值稅試算資料或土地增值稅繳款書",
+        "取得相關費用憑證，例如契稅、印花稅、代書費、規費、仲介費等",
+        "出售相關費用憑證，例如仲介服務費、廣告費、清潔費、搬運費、代書費、規費等",
+        "裝修、改良或必要支出之發票、收據、契約與付款證明",
+        "房屋稅籍資料、地價稅資料或其他可佐證標的資料",
+        "身分證明文件與所有權相關資料"
+      ];
+
+      if (checked("riskSelfUse") || data.mode === "selfUse") {
+        docs.push("戶籍謄本、設籍資料與自住事實證明");
+        docs.push("未出租、未營業使用之佐證資料");
+      }
+
+      if (checked("riskRepurchase")) {
+        docs.push("重購房地買賣契約書、登記資料與付款證明");
+        docs.push("出售與重購時間序列資料，用於判斷重購退稅申請條件");
+      }
+
+      if (checked("riskInheritance")) {
+        docs.push("繼承系統表、遺產稅核定或免稅證明、分割協議書");
+        docs.push("被繼承人原始取得成本與相關費用資料");
+      }
+
+      if (checked("riskGift")) {
+        docs.push("贈與契約、贈與稅核定資料或免稅證明");
+        docs.push("贈與時土地公告現值、房屋評定現值與相關成本資料");
+      }
+
+      if (checked("riskCompany")) {
+        docs.push("公司登記資料、財務報表、帳列成本與會計師稅務意見");
+      }
+
+      return docs;
+    }
+
     function updateReport(data) {
       document.getElementById("rCaseName").textContent = textValue("caseName");
       document.getElementById("rAddress").textContent = textValue("address");
@@ -759,6 +959,18 @@
       `;
 
       document.getElementById("professionalComment").innerHTML = comment;
+
+      const risks = buildRiskReminders(data);
+      document.getElementById("riskReminder").innerHTML =
+        "<strong>依目前輸入條件，建議注意下列事項：</strong><ul>" +
+        risks.map(item => "<li>" + item + "</li>").join("") +
+        "</ul>";
+
+      const docs = buildDocumentList(data);
+      document.getElementById("documentList").innerHTML =
+        "<strong>建議後續補齊或確認下列資料：</strong><ul>" +
+        docs.map(item => "<li>" + item + "</li>").join("") +
+        "</ul>";
     }
 
     function clearForm() {
@@ -782,6 +994,21 @@
 
       fields.forEach(function(id) {
         document.getElementById(id).value = "";
+      });
+
+      const checks = [
+        "riskCostUnknown",
+        "riskSelfUse",
+        "riskRepurchase",
+        "riskInheritance",
+        "riskGift",
+        "riskDateUnclear",
+        "riskExpenseMissing",
+        "riskCompany"
+      ];
+
+      checks.forEach(function(id) {
+        document.getElementById(id).checked = false;
       });
 
       document.getElementById("taxMode").value = "auto";
@@ -818,6 +1045,9 @@
       });
 
       document.getElementById("professionalComment").textContent = "請先輸入資料並按下「計算並產生報告」，系統將自動產生初步說明。";
+      document.getElementById("riskReminder").textContent = "尚未產生風險提醒。請先輸入資料並按下「計算並產生報告」。";
+      document.getElementById("documentList").textContent = "尚未產生應補資料清單。請先輸入資料並按下「計算並產生報告」。";
+
       setToday();
     }
 
