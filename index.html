@@ -781,6 +781,36 @@
     }
 
     function calculateTax() {
+            const requiredMissing = [];
+
+      if (textValue("caseName") === "-") {
+        requiredMissing.push("案件名稱");
+      }
+
+      if (!document.getElementById("buyDate").value) {
+        requiredMissing.push("取得日期");
+      }
+
+      if (!document.getElementById("sellDate").value) {
+        requiredMissing.push("出售日期");
+      }
+
+      if (numberValue("sellPrice") <= 0) {
+        requiredMissing.push("預估成交總價");
+      }
+
+      if (numberValue("buyCost") <= 0) {
+        requiredMissing.push("取得成本");
+      }
+
+      if (document.getElementById("taxMode").value === "manual" && numberValue("manualRate") <= 0) {
+        requiredMissing.push("手動稅率");
+      }
+
+      if (requiredMissing.length > 0) {
+        alert("請先補齊必要欄位：\n\n" + requiredMissing.join("\n"));
+        return;
+      }
       const sellPrice = numberValue("sellPrice");
       const buyCost = numberValue("buyCost");
       const buyExpense = numberValue("buyExpense");
