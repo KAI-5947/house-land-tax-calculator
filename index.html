@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>房地合一稅單機試算列印工具</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 30px;
+      color: #111827;
+    }
+
+    h2 {
+      font-size: 20px;
+      border-left: 6px solid #2563eb;
+      padding-left: 12px;
+      margin-top: 0;
+    }
+
+    .notice {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      padding: 14px 16px;
+      border-radius: 12px;
+      line-height: 1.7;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    .result {
+      font-size: 22px;
+      font-weight: 800;
+      color: #b91c1c;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-top: 8px;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 10px;
+      text-align: right;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+    }
+
+    th {
+      background: #f3f4f6;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .no-print {
+        display: none;
+      }
+
+      .container {
+        padding: 0;
+      }
+
+      .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>房地合一稅單機試算列印工具 V1</h1>
+      <div class="notice">
+        本工具為成交前初步試算參考，不連接資料庫、不儲存客戶資料。實際稅額仍應以國稅局申報資料、核定結果及正式稅單為準。
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>一、案件基本資料</h2>
+      <div class="grid">
+        <div>
+          <label>案件名稱</label>
+          <input id="caseName" placeholder="例如：德松路1-19號" />
+        </div>
+        <div>
+          <label>客戶姓名</label>
+          <input id="clientName" placeholder="可空白" />
+        </div>
+        <div>
+          <label>不動產地址</label>
+          <input id="propertyAddress" placeholder="輸入地址或地號" />
+        </div>
+        <div>
+          <label>適用稅率</label>
+          <select id="taxRate">
+            <option value="0.45">2年內：45%</option>
+            <option value="0.35">超過2年，未逾5年：35%</option>
+            <option value="0.20">超過5年，未逾10年：20%</option>
+            <option value="0.15">超過10年：15%</option>
+            <option value="0.10">自住房地優惠超過400萬部分：10%</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>二、房地合一稅試算</h2>
+      <div class="grid">
+        <div>
+          <label>出售價格（萬元）</label>
+          <input id="salePrice" type="number" value="0" />
+        </div>
+        <div>
+          <label>取得成本（萬元）</label>
+          <input id="buyPrice" type="number" value="0" />
+        </div>
+        <div>
+          <label>取得可減除成本（萬元）</label>
+          <input id="buyCosts" type="number" value="0" />
+        </div>
+        <div>
+          <label>出售可減除費用（萬元）</label>
+          <input id="saleCosts" type="number" value="0" />
+        </div>
+      </div>
+
+      <table>
+        <tr>
+          <th>項目</th>
+          <th>金額</th>
+        </tr>
+        <tr>
+          <td>課稅所得</td>
+          <td id="taxableIncome">0 萬元</td>
+        </tr>
+        <tr>
+          <td>預估房地合一稅</td>
+          <td class="result" id="taxAmount">0 萬元</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>三、售屋現金流參考</h2>
+      <div class="grid">
+        <div>
+          <label>貸款塗銷金額（萬元）</label>
+          <input id="loanPayoff" type="number" value="0" />
+        </div>
+        <div>
+          <label>其他出售相關費用（萬元）</label>
+          <input id="otherCosts" type="number" value="0" />
+        </div>
+      </div>
+
+      <table>
+        <tr>
+          <th>項目</th>
+          <th>金額</th>
+        </tr>
+        <tr>
+          <td>預估售屋後可拿回現金</td>
+          <td class="result" id="cashBack">0 萬元</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card no-print">
+      <button class="primary" onclick="calculate()">重新計算</button>
+      <button class="secondary" onclick="window.print()">列印／另存 PDF</button>
+      <button class="secondary" onclick="clearForm()">清除資料</button>
+    </div>
+  </div>
+
+  <script>
+    function getNumber(id) {
+      return Number(document.getElementById(id).value) || 0;
+    }
+
+    function formatWan(num) {
+      return num.toLocaleString("zh-TW", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + " 萬元";
+    }
+
+    function calculate() {
+      const salePrice = getNumber("salePrice");
+      const buyPrice = getNumber("buyPrice");
+      const buyCosts = getNumber("buyCosts");
+      const saleCosts = getNumber("saleCosts");
+      const taxRate = Number(document.getElementById("taxRate").value);
+
+      const taxableIncome = Math.max(salePrice - buyPrice - buyCosts - saleCosts, 0);
+      const taxAmount = taxableIncome * taxRate;
+
+      const loanPayoff = getNumber("loanPayoff");
+      const otherCosts = getNumber("otherCosts");
+      const cashBack = salePrice - loanPayoff - taxAmount - saleCosts - otherCosts;
+
+      document.getElementById("taxableIncome").textContent = formatWan(taxableIncome);
+      document.getElementById("taxAmount").textContent = formatWan(taxAmount);
+      document.getElementById("cashBack").textContent = formatWan(cashBack);
+    }
+
+    function clearForm() {
+      const inputs = document.querySelectorAll("input");
+      inputs.forEach(input => input.value = "");
+      calculate();
+    }
+
+    document.querySelectorAll("input, select").forEach(el => {
+      el.addEventListener("input", calculate);
+      el.addEventListener("change", calculate);
+    });
+
+    calculate();
+  </script>
+</body>
+</html>
