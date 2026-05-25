@@ -543,7 +543,7 @@
       <div class="actions">
         <button onclick="calculateTax()">計算並產生報告</button>
         <button class="secondary" onclick="clearForm()">清空欄位</button>
-        <button class="print" onclick="window.print()">列印 A4 報告</button>
+        <button class="print" onclick="printReportWithConfirm()">列印 A4 報告</button>
       </div>
 
       <div class="result-box">
@@ -1005,6 +1005,23 @@
     }
 
     function clearForm() {
+          function printReportWithConfirm() {
+      const confirmText =
+        "列印前請再次確認：\n\n" +
+        "1. 案件名稱是否正確\n" +
+        "2. 取得日期與出售日期是否正確\n" +
+        "3. 預估成交總價是否正確\n" +
+        "4. 取得成本、相關費用與土地增值稅是否正確\n" +
+        "5. 稅率模式是否正確\n\n" +
+        "確認後要列印 A4 報告嗎？";
+
+      const confirmed = confirm(confirmText);
+
+      if (confirmed) {
+        window.print();
+      }
+    }
+
       const fields = [
         "caseName",
         "address",
