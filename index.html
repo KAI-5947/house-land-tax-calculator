@@ -3,687 +3,833 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>房地合一稅單機試算列印工具 V1.2</title>
+  <title>房地合一稅單機列印版 v1.3</title>
   <style>
+    :root {
+      --primary: #1f4e5f;
+      --primary-soft: #e8f1f3;
+      --accent: #b47b45;
+      --bg: #f4f6f7;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --border: #d8dee4;
+      --danger: #b42318;
+      --success: #0f766e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
       margin: 0;
-      background: #f4f6f8;
-      color: #1f2937;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
 
-    .container {
-      max-width: 1120px;
+    .page {
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 32px 20px;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 16px;
       padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     }
 
-    h1 {
-      margin-top: 0;
+    .hero {
+      background: linear-gradient(135deg, #1f4e5f, #2f6f7f);
+      color: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
       font-size: 30px;
-      color: #111827;
+      letter-spacing: 1px;
     }
 
-    h2 {
-      font-size: 20px;
-      border-left: 6px solid #2563eb;
-      padding-left: 12px;
-      margin-top: 0;
+    .hero p {
+      margin: 4px 0;
+      color: rgba(255, 255, 255, 0.88);
     }
 
-    h3 {
-      font-size: 17px;
-      margin-top: 0;
-      color: #374151;
-    }
-
-    .notice {
-      background: #fff7ed;
-      border: 1px solid #fed7aa;
-      color: #9a3412;
-      padding: 14px 16px;
-      border-radius: 12px;
-      line-height: 1.7;
-      font-weight: 700;
+    .version {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      font-size: 14px;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      color: var(--primary);
+      font-size: 21px;
+      border-left: 5px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    .form-row {
+      margin-bottom: 14px;
     }
 
     label {
       display: block;
       font-weight: 700;
       margin-bottom: 6px;
+      color: #263238;
     }
 
-    input, select {
+    input,
+    select,
+    textarea {
       width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      border: 1px solid #d1d5db;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
       border-radius: 10px;
       font-size: 16px;
+      background: #fff;
+      color: var(--text);
     }
 
-    .helper {
-      font-size: 14px;
-      color: #6b7280;
-      margin-top: 6px;
-      line-height: 1.5;
+    textarea {
+      min-height: 82px;
+      resize: vertical;
     }
 
-    .auto-box {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e3a8a;
-      padding: 14px;
-      border-radius: 12px;
-      font-weight: 800;
-      line-height: 1.8;
+    .hint {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
     }
 
-    .summary-box {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 14px;
-      margin-top: 14px;
-      font-weight: 800;
-      color: #111827;
-    }
-
-    .result {
-      font-size: 22px;
-      font-weight: 800;
-      color: #b91c1c;
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0;
     }
 
     button {
       border: 0;
       border-radius: 12px;
-      padding: 13px 18px;
+      padding: 12px 18px;
       font-size: 16px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
-      margin-right: 8px;
-      margin-top: 8px;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 5px 12px rgba(31, 78, 95, 0.22);
     }
 
-    .primary {
-      background: #2563eb;
-      color: white;
+    button.secondary {
+      background: #ffffff;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      box-shadow: none;
     }
 
-    .secondary {
-      background: #e5e7eb;
-      color: #111827;
+    button.print {
+      background: var(--accent);
+    }
+
+    .result-box {
+      background: var(--primary-soft);
+      border: 1px solid #c9dce1;
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 10px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .metric .value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .metric .danger {
+      color: var(--danger);
+    }
+
+    .metric .success {
+      color: var(--success);
+    }
+
+    .report {
+      background: #fff;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 26px;
+      margin-top: 18px;
+    }
+
+    .report-header {
+      text-align: center;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .report-header h2 {
+      margin: 0;
+      color: var(--primary);
+      font-size: 26px;
+      border: 0;
+      padding: 0;
+    }
+
+    .report-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 12px;
+      margin: 12px 0 18px;
+      font-size: 15px;
     }
 
-    th, td {
-      border: 1px solid #d1d5db;
+    th,
+    td {
+      border: 1px solid var(--border);
       padding: 10px;
-      text-align: right;
-    }
-
-    th:first-child, td:first-child {
       text-align: left;
+      vertical-align: top;
     }
 
     th {
-      background: #f3f4f6;
+      background: var(--primary-soft);
+      color: var(--primary);
+      width: 28%;
     }
 
-    .section-note {
-      color: #6b7280;
-      line-height: 1.7;
-      margin-bottom: 14px;
+    .section-title {
+      margin-top: 24px;
+      margin-bottom: 8px;
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    .note {
+      background: #fff7ed;
+      border-left: 5px solid var(--accent);
+      padding: 14px;
+      border-radius: 10px;
+      color: #5f3b16;
+      margin-top: 12px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
     }
 
     @media (max-width: 820px) {
+      .page {
+        padding: 14px;
+      }
+
       .grid,
-      .grid-3 {
+      .result-grid {
         grid-template-columns: 1fr;
       }
 
-      h1 {
+      .hero h1 {
         font-size: 24px;
       }
     }
 
     @media print {
       body {
-        background: white;
+        background: #fff;
       }
 
-      .no-print {
-        display: none;
-      }
-
-      .container {
+      .page {
+        max-width: 100%;
         padding: 0;
       }
 
-      .card {
+      .hero,
+      .card,
+      .actions,
+      .no-print {
+        display: none !important;
+      }
+
+      .report {
+        border: 0;
         box-shadow: none;
-        border: 1px solid #ddd;
+        padding: 0;
+        margin: 0;
+      }
+
+      .report-header h2 {
+        font-size: 24px;
+      }
+
+      table {
         page-break-inside: avoid;
       }
 
-      input, select {
-        border: none;
-        padding: 4px;
+      button {
+        display: none;
+      }
+
+      @page {
+        size: A4 portrait;
+        margin: 14mm;
       }
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="card">
-      <h1>房地合一稅單機試算列印工具 V1.2</h1>
-      <div class="notice">
-        本工具為成交前初步試算參考，不連接資料庫、不儲存客戶資料。實際稅額仍應以國稅局申報資料、核定結果及正式稅單為準。
-      </div>
-    </div>
+  <div class="page">
+    <section class="hero">
+      <h1>房地合一稅單機列印版</h1>
+      <p>專業報告版｜輸入案件資料後，自動試算稅額並產生 A4 列印報告。</p>
+      <p>適合同事內部試算、成交前溝通、客戶初步說明使用。</p>
+      <span class="version">v1.3 專業報告版</span>
+    </section>
 
-    <div class="card">
-      <h2>一、案件基本資料</h2>
-      <div class="grid">
-        <div>
-          <label>案件名稱</label>
-          <input id="caseName" placeholder="例如：德松路1-19號" />
+    <div class="grid">
+      <section class="card">
+        <h2>一、案件基本資料</h2>
+
+        <div class="form-row">
+          <label for="caseName">案件名稱</label>
+          <input id="caseName" type="text" placeholder="例：鳳山區○○路房地合一稅試算" />
         </div>
 
-        <div>
-          <label>客戶姓名</label>
-          <input id="clientName" placeholder="可空白" />
+        <div class="form-row">
+          <label for="address">不動產地址</label>
+          <input id="address" type="text" placeholder="請輸入標的地址" />
         </div>
 
-        <div>
-          <label>不動產地址</label>
-          <input id="propertyAddress" placeholder="輸入地址或地號" />
+        <div class="form-row">
+          <label for="clientName">客戶名稱</label>
+          <input id="clientName" type="text" placeholder="請輸入客戶或所有權人名稱" />
         </div>
 
-        <div>
-          <label>稅率模式</label>
-          <select id="rateMode">
-            <option value="auto">依取得／出售日期自動判斷</option>
-            <option value="manual">手動選擇稅率</option>
-          </select>
-          <div class="helper">一般個人出售案件，可先使用自動判斷。特殊案件仍建議人工確認。</div>
+        <div class="form-row">
+          <label for="handler">承辦人</label>
+          <input id="handler" type="text" placeholder="請輸入承辦人" />
         </div>
 
-        <div>
-          <label>取得日期</label>
+        <div class="form-row">
+          <label for="estimateDate">試算日期</label>
+          <input id="estimateDate" type="date" />
+        </div>
+
+        <div class="form-row">
+          <label for="memo">案件備註</label>
+          <textarea id="memo" placeholder="可輸入特殊情況、資料來源、待確認事項"></textarea>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>二、取得與出售資料</h2>
+
+        <div class="form-row">
+          <label for="buyDate">取得日期</label>
           <input id="buyDate" type="date" />
         </div>
 
-        <div>
-          <label>出售日期</label>
-          <input id="saleDate" type="date" />
+        <div class="form-row">
+          <label for="sellDate">出售日期</label>
+          <input id="sellDate" type="date" />
         </div>
 
-        <div>
-          <label>手動適用稅率</label>
-          <select id="manualTaxRate">
-            <option value="0.45">2年內：45%</option>
-            <option value="0.35">超過2年，未逾5年：35%</option>
-            <option value="0.20">超過5年，未逾10年：20%</option>
-            <option value="0.15">超過10年：15%</option>
-            <option value="0.10">自住房地優惠超過400萬部分：10%</option>
+        <div class="form-row">
+          <label for="sellPrice">預估成交總價</label>
+          <input id="sellPrice" type="number" min="0" placeholder="例：30000000" />
+        </div>
+
+        <div class="form-row">
+          <label for="buyCost">取得成本</label>
+          <input id="buyCost" type="number" min="0" placeholder="例：20000000" />
+          <div class="hint">買賣取得通常以買入成交價額為基礎。</div>
+        </div>
+
+        <div class="form-row">
+          <label for="buyExpense">取得相關費用</label>
+          <input id="buyExpense" type="number" min="0" placeholder="例：300000" />
+          <div class="hint">例如契稅、印花稅、代書費、規費、仲介費、必要改良費用等。</div>
+        </div>
+
+        <div class="form-row">
+          <label for="sellExpense">出售相關費用</label>
+          <input id="sellExpense" type="number" min="0" placeholder="例：600000" />
+          <div class="hint">例如仲介費、廣告費、清潔費、搬運費、印花稅、代書費、規費等。</div>
+        </div>
+
+        <div class="form-row">
+          <label for="landValueTax">土地增值稅／土地漲價總數額可扣除額</label>
+          <input id="landValueTax" type="number" min="0" placeholder="例：800000" />
+        </div>
+
+        <div class="form-row">
+          <label for="otherDeduction">其他可扣除費用</label>
+          <input id="otherDeduction" type="number" min="0" placeholder="例：0" />
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>三、稅率判斷與特殊選項</h2>
+
+      <div class="grid">
+        <div class="form-row">
+          <label for="taxMode">稅率模式</label>
+          <select id="taxMode">
+            <option value="auto">自動依持有期間判斷｜一般境內個人</option>
+            <option value="20">特殊情況 20%｜非自願因素、合建分回等</option>
+            <option value="selfUse">自住房地優惠｜免稅額 400 萬，超過部分 10%</option>
+            <option value="manual">手動輸入稅率</option>
           </select>
         </div>
 
-        <div>
-          <label>自動判斷結果</label>
-          <div class="auto-box">
-            <div id="holdingPeriodText">持有期間：尚未輸入完整日期</div>
-            <div id="autoRateText">自動判斷稅率：尚未判斷</div>
-            <div id="appliedRateText">目前套用稅率：45%</div>
+        <div class="form-row">
+          <label for="manualRate">手動稅率</label>
+          <input id="manualRate" type="number" min="0" max="100" placeholder="例：20" />
+          <div class="hint">選擇「手動輸入稅率」時才使用。</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button onclick="calculateTax()">計算並產生報告</button>
+        <button class="secondary" onclick="clearForm()">清空欄位</button>
+        <button class="print" onclick="window.print()">列印 A4 報告</button>
+      </div>
+
+      <div class="result-box">
+        <div class="result-grid">
+          <div class="metric">
+            <div class="label">持有期間</div>
+            <div id="holdingPeriod" class="value">-</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">課稅所得</div>
+            <div id="taxableIncome" class="value">-</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">適用稅率</div>
+            <div id="taxRate" class="value">-</div>
+          </div>
+
+          <div class="metric">
+            <div class="label">預估房地合一稅</div>
+            <div id="taxAmount" class="value danger">-</div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="card">
-      <h2>二、買賣主要金額</h2>
-      <div class="grid">
-        <div>
-          <label>出售價格（萬元）</label>
-          <input id="salePrice" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>取得成本／買入價格（萬元）</label>
-          <input id="buyPrice" type="number" value="0" />
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>三、取得時可減除成本明細</h2>
-      <div class="section-note">
-        參考項目包含契稅、印花稅、代書費、規費、公證費、仲介費、修繕費等。請依實際憑證與可申報項目確認。
+    <section id="printReport" class="report">
+      <div class="report-header">
+        <h2>房地合一稅初步試算報告</h2>
+        <p>v1.3 專業報告版｜本報告為成交前初步評估使用</p>
       </div>
 
-      <div class="grid-3">
-        <div>
-          <label>契稅（萬元）</label>
-          <input id="acqDeedTax" class="buyCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>印花稅（萬元）</label>
-          <input id="acqStampTax" class="buyCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>代書費（萬元）</label>
-          <input id="acqScrivenerFee" class="buyCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>規費（萬元）</label>
-          <input id="acqGovFee" class="buyCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>公證費（萬元）</label>
-          <input id="acqNotaryFee" class="buyCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>仲介費（萬元）</label>
-          <input id="acqBrokerFee" class="buyCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>修繕費（萬元）</label>
-          <input id="acqRepairFee" class="buyCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>其他取得成本（萬元）</label>
-          <input id="acqOtherFee" class="buyCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>取得可減除成本小計</label>
-          <div class="summary-box" id="buyCostsSubtotal">0.00 萬元</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>四、出售時可減除費用明細</h2>
-      <div class="section-note">
-        參考項目包含仲介費、代書費、清潔費、搬運費、廣告費等。請依實際支出與可申報項目確認。
-      </div>
-
-      <div class="grid-3">
-        <div>
-          <label>仲介費（萬元）</label>
-          <input id="saleBrokerFee" class="saleCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>代書費（萬元）</label>
-          <input id="saleScrivenerFee" class="saleCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>清潔費（萬元）</label>
-          <input id="saleCleaningFee" class="saleCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>搬運費（萬元）</label>
-          <input id="saleMovingFee" class="saleCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>廣告費（萬元）</label>
-          <input id="saleAdFee" class="saleCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>其他出售費用（萬元）</label>
-          <input id="saleOtherFee" class="saleCostItem" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>出售可減除費用小計</label>
-          <div class="summary-box" id="saleCostsSubtotal">0.00 萬元</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>五、房地合一稅試算結果</h2>
-
+      <div class="section-title">一、案件基本資料</div>
       <table>
         <tr>
-          <th>項目</th>
-          <th>金額</th>
+          <th>案件名稱</th>
+          <td id="rCaseName">-</td>
+          <th>試算日期</th>
+          <td id="rEstimateDate">-</td>
         </tr>
         <tr>
-          <td>出售價格</td>
-          <td id="salePriceResult">0 萬元</td>
+          <th>不動產地址</th>
+          <td id="rAddress" colspan="3">-</td>
         </tr>
         <tr>
-          <td>取得成本／買入價格</td>
-          <td id="buyPriceResult">0 萬元</td>
+          <th>客戶名稱</th>
+          <td id="rClientName">-</td>
+          <th>承辦人</th>
+          <td id="rHandler">-</td>
         </tr>
         <tr>
-          <td>取得可減除成本小計</td>
-          <td id="buyCostsResult">0 萬元</td>
-        </tr>
-        <tr>
-          <td>出售可減除費用小計</td>
-          <td id="saleCostsResult">0 萬元</td>
-        </tr>
-        <tr>
-          <td>課稅所得</td>
-          <td id="taxableIncome">0 萬元</td>
-        </tr>
-        <tr>
-          <td>預估房地合一稅</td>
-          <td class="result" id="taxAmount">0 萬元</td>
+          <th>案件備註</th>
+          <td id="rMemo" colspan="3">-</td>
         </tr>
       </table>
-    </div>
 
-    <div class="card">
-      <h2>六、售屋現金流參考</h2>
-      <div class="grid">
-        <div>
-          <label>貸款塗銷金額（萬元）</label>
-          <input id="loanPayoff" type="number" value="0" />
-        </div>
-
-        <div>
-          <label>其他出售相關費用（萬元）</label>
-          <input id="otherCosts" type="number" value="0" />
-          <div class="helper">此欄可填入非前述可減除項目，例如搬遷預留、額外服務費或其他現金流支出。</div>
-        </div>
-      </div>
-
+      <div class="section-title">二、試算資料明細</div>
       <table>
         <tr>
-          <th>項目</th>
-          <th>金額</th>
+          <th>取得日期</th>
+          <td id="rBuyDate">-</td>
+          <th>出售日期</th>
+          <td id="rSellDate">-</td>
         </tr>
         <tr>
-          <td>出售價格</td>
-          <td id="cashSalePriceResult">0 萬元</td>
+          <th>預估成交總價</th>
+          <td id="rSellPrice">-</td>
+          <th>取得成本</th>
+          <td id="rBuyCost">-</td>
         </tr>
         <tr>
-          <td>貸款塗銷金額</td>
-          <td id="loanPayoffResult">0 萬元</td>
+          <th>取得相關費用</th>
+          <td id="rBuyExpense">-</td>
+          <th>出售相關費用</th>
+          <td id="rSellExpense">-</td>
         </tr>
         <tr>
-          <td>房地合一稅</td>
-          <td id="cashTaxAmountResult">0 萬元</td>
-        </tr>
-        <tr>
-          <td>出售可減除費用小計</td>
-          <td id="cashSaleCostsResult">0 萬元</td>
-        </tr>
-        <tr>
-          <td>其他出售相關費用</td>
-          <td id="otherCostsResult">0 萬元</td>
-        </tr>
-        <tr>
-          <td>預估售屋後可拿回現金</td>
-          <td class="result" id="cashBack">0 萬元</td>
+          <th>土地增值稅／可扣除額</th>
+          <td id="rLandValueTax">-</td>
+          <th>其他可扣除費用</th>
+          <td id="rOtherDeduction">-</td>
         </tr>
       </table>
-    </div>
 
-    <div class="card">
-      <h2>七、稅率參考表</h2>
+      <div class="section-title">三、房地合一稅試算結果</div>
       <table>
         <tr>
           <th>持有期間</th>
-          <th>適用稅率</th>
+          <td id="rHoldingPeriod">-</td>
+          <th>稅率判斷</th>
+          <td id="rTaxRate">-</td>
         </tr>
         <tr>
-          <td>2 年內</td>
-          <td>45%</td>
+          <th>課稅所得</th>
+          <td id="rTaxableIncome">-</td>
+          <th>預估房地合一稅</th>
+          <td id="rTaxAmount">-</td>
         </tr>
         <tr>
-          <td>超過 2 年，未逾 5 年</td>
-          <td>35%</td>
-        </tr>
-        <tr>
-          <td>超過 5 年，未逾 10 年</td>
-          <td>20%</td>
-        </tr>
-        <tr>
-          <td>超過 10 年</td>
-          <td>15%</td>
-        </tr>
-        <tr>
-          <td>自住房地優惠</td>
-          <td>400 萬以下免稅，超過部分 10%</td>
+          <th>預估稅後淨額</th>
+          <td id="rNetAmount" colspan="3">-</td>
         </tr>
       </table>
-    </div>
 
-    <div class="card">
-      <h2>八、備註說明</h2>
-      <div class="section-note">
-        本試算表僅供成交前初步評估參考，實際稅額仍應以國稅局申報資料、核定結果及正式稅單為準。<br>
-        可減除成本與費用是否可列入，仍需依實際憑證、個案情況及稅務申報規定確認。
+      <div class="section-title">四、專業初步說明</div>
+      <div id="professionalComment" class="note">
+        請先輸入資料並按下「計算並產生報告」，系統將自動產生初步說明。
       </div>
-    </div>
 
-    <div class="card no-print">
-      <button class="primary" onclick="calculate()">重新計算</button>
-      <button class="secondary" onclick="window.print()">列印／另存 PDF</button>
-      <button class="secondary" onclick="clearForm()">清除資料</button>
-    </div>
+      <div class="footer-note">
+        注意事項：本試算結果僅供成交前初步評估使用，實際稅額仍應依國稅局核定、完整取得成本、費用憑證、土地增值稅資料及相關法令規定為準。本工具不儲存個資或案件資料，重新整理頁面後資料可能消失。
+      </div>
+    </section>
   </div>
 
   <script>
-    function getNumber(id) {
-      return Number(document.getElementById(id).value) || 0;
-    }
-
-    function formatWan(num) {
-      return num.toLocaleString("zh-TW", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }) + " 萬元";
-    }
-
-    function formatPercent(rate) {
-      return Math.round(rate * 100) + "%";
-    }
-
-    function getDateValue(id) {
+    function numberValue(id) {
       const value = document.getElementById(id).value;
-      if (!value) return null;
-      return new Date(value + "T00:00:00");
+      return Number(value || 0);
     }
 
-    function sumByClass(className) {
-      let total = 0;
-      document.querySelectorAll("." + className).forEach(input => {
-        total += Number(input.value) || 0;
-      });
-      return total;
+    function textValue(id) {
+      const value = document.getElementById(id).value;
+      return value && value.trim() !== "" ? value.trim() : "-";
     }
 
-    function getHoldingInfo() {
-      const buyDate = getDateValue("buyDate");
-      const saleDate = getDateValue("saleDate");
+    function formatMoney(num) {
+      const n = Number(num || 0);
+      return "NT$ " + Math.round(n).toLocaleString("zh-TW");
+    }
 
-      if (!buyDate || !saleDate) {
-        return {
-          valid: false,
-          years: 0,
-          months: 0,
-          days: 0,
-          rate: 0.45,
-          label: "尚未輸入完整日期"
-        };
+    function formatPercent(num) {
+      return Number(num).toFixed(0) + "%";
+    }
+
+    function calculateHoldingYears(buyDate, sellDate) {
+      if (!buyDate || !sellDate) {
+        return null;
       }
 
-      if (saleDate < buyDate) {
-        return {
-          valid: false,
-          years: 0,
-          months: 0,
-          days: 0,
-          rate: 0.45,
-          label: "出售日期不可早於取得日期"
-        };
+      const buy = new Date(buyDate);
+      const sell = new Date(sellDate);
+
+      if (isNaN(buy.getTime()) || isNaN(sell.getTime()) || sell < buy) {
+        return null;
       }
 
-      let years = saleDate.getFullYear() - buyDate.getFullYear();
-      let months = saleDate.getMonth() - buyDate.getMonth();
-      let days = saleDate.getDate() - buyDate.getDate();
+      const diffMs = sell - buy;
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      return diffDays / 365.25;
+    }
 
-      if (days < 0) {
-        months -= 1;
-        const previousMonth = new Date(saleDate.getFullYear(), saleDate.getMonth(), 0);
-        days += previousMonth.getDate();
+    function holdingText(years) {
+      if (years === null) {
+        return "尚未判斷";
       }
 
-      if (months < 0) {
-        years -= 1;
-        months += 12;
+      if (years < 1) {
+        return "約 " + Math.round(years * 12) + " 個月";
       }
 
-      const totalMonths = years * 12 + months + (days > 0 ? 1 : 0);
+      return "約 " + years.toFixed(1) + " 年";
+    }
 
-      let rate = 0.45;
-      let label = "2年內：45%";
-
-      if (totalMonths <= 24) {
-        rate = 0.45;
-        label = "2年內：45%";
-      } else if (totalMonths <= 60) {
-        rate = 0.35;
-        label = "超過2年，未逾5年：35%";
-      } else if (totalMonths <= 120) {
-        rate = 0.20;
-        label = "超過5年，未逾10年：20%";
-      } else {
-        rate = 0.15;
-        label = "超過10年：15%";
+    function autoRateByHolding(years) {
+      if (years === null) {
+        return 0;
       }
 
-      return {
-        valid: true,
-        years,
-        months,
-        days,
+      if (years <= 2) {
+        return 45;
+      }
+
+      if (years <= 5) {
+        return 35;
+      }
+
+      if (years <= 10) {
+        return 20;
+      }
+
+      return 15;
+    }
+
+    function rateExplanation(rate, mode, years) {
+      if (mode === "20") {
+        return "特殊情況 20%｜例如非自願因素、合建分回等情形，仍應確認是否符合法定條件。";
+      }
+
+      if (mode === "selfUse") {
+        return "自住房地優惠｜課稅所得先扣除 400 萬元免稅額，超過部分以 10% 初估。";
+      }
+
+      if (mode === "manual") {
+        return "手動輸入稅率｜本案由使用者自行指定稅率，請確認適用依據。";
+      }
+
+      if (years === null) {
+        return "尚未輸入完整取得日期與出售日期，無法自動判斷持有期間稅率。";
+      }
+
+      if (rate === 45) {
+        return "一般境內個人｜持有期間 2 年以內，初步適用 45%。";
+      }
+
+      if (rate === 35) {
+        return "一般境內個人｜持有期間超過 2 年、未滿或等於 5 年，初步適用 35%。";
+      }
+
+      if (rate === 20) {
+        return "一般境內個人｜持有期間超過 5 年、未滿或等於 10 年，初步適用 20%。";
+      }
+
+      if (rate === 15) {
+        return "一般境內個人｜持有期間超過 10 年，初步適用 15%。";
+      }
+
+      return "尚未判斷。";
+    }
+
+    function calculateTax() {
+      const sellPrice = numberValue("sellPrice");
+      const buyCost = numberValue("buyCost");
+      const buyExpense = numberValue("buyExpense");
+      const sellExpense = numberValue("sellExpense");
+      const landValueTax = numberValue("landValueTax");
+      const otherDeduction = numberValue("otherDeduction");
+
+      const buyDate = document.getElementById("buyDate").value;
+      const sellDate = document.getElementById("sellDate").value;
+      const years = calculateHoldingYears(buyDate, sellDate);
+      const mode = document.getElementById("taxMode").value;
+
+      let taxableIncome = sellPrice - buyCost - buyExpense - sellExpense - landValueTax - otherDeduction;
+      if (taxableIncome < 0) {
+        taxableIncome = 0;
+      }
+
+      let rate = 0;
+
+      if (mode === "auto") {
+        rate = autoRateByHolding(years);
+      } else if (mode === "20") {
+        rate = 20;
+      } else if (mode === "selfUse") {
+        rate = 10;
+        taxableIncome = Math.max(0, taxableIncome - 4000000);
+      } else if (mode === "manual") {
+        rate = numberValue("manualRate");
+      }
+
+      const taxAmount = taxableIncome * (rate / 100);
+      const netAmount = sellPrice - taxAmount;
+
+      document.getElementById("holdingPeriod").textContent = holdingText(years);
+      document.getElementById("taxableIncome").textContent = formatMoney(taxableIncome);
+      document.getElementById("taxRate").textContent = rate ? formatPercent(rate) : "-";
+      document.getElementById("taxAmount").textContent = formatMoney(taxAmount);
+
+      updateReport({
+        sellPrice,
+        buyCost,
+        buyExpense,
+        sellExpense,
+        landValueTax,
+        otherDeduction,
+        taxableIncome,
         rate,
-        label
-      };
+        taxAmount,
+        netAmount,
+        years,
+        mode
+      });
     }
 
-    function getAppliedRate() {
-      const rateMode = document.getElementById("rateMode").value;
-      const holdingInfo = getHoldingInfo();
+    function updateReport(data) {
+      document.getElementById("rCaseName").textContent = textValue("caseName");
+      document.getElementById("rAddress").textContent = textValue("address");
+      document.getElementById("rClientName").textContent = textValue("clientName");
+      document.getElementById("rHandler").textContent = textValue("handler");
+      document.getElementById("rEstimateDate").textContent = textValue("estimateDate");
+      document.getElementById("rMemo").textContent = textValue("memo");
 
-      if (rateMode === "manual") {
-        return Number(document.getElementById("manualTaxRate").value);
-      }
+      document.getElementById("rBuyDate").textContent = textValue("buyDate");
+      document.getElementById("rSellDate").textContent = textValue("sellDate");
+      document.getElementById("rSellPrice").textContent = formatMoney(data.sellPrice);
+      document.getElementById("rBuyCost").textContent = formatMoney(data.buyCost);
+      document.getElementById("rBuyExpense").textContent = formatMoney(data.buyExpense);
+      document.getElementById("rSellExpense").textContent = formatMoney(data.sellExpense);
+      document.getElementById("rLandValueTax").textContent = formatMoney(data.landValueTax);
+      document.getElementById("rOtherDeduction").textContent = formatMoney(data.otherDeduction);
 
-      return holdingInfo.rate;
-    }
+      document.getElementById("rHoldingPeriod").textContent = holdingText(data.years);
+      document.getElementById("rTaxRate").textContent = data.rate ? formatPercent(data.rate) + "｜" + rateExplanation(data.rate, data.mode, data.years) : "-";
+      document.getElementById("rTaxableIncome").textContent = formatMoney(data.taxableIncome);
+      document.getElementById("rTaxAmount").textContent = formatMoney(data.taxAmount);
+      document.getElementById("rNetAmount").textContent = formatMoney(data.netAmount);
 
-    function calculate() {
-      const salePrice = getNumber("salePrice");
-      const buyPrice = getNumber("buyPrice");
+      const caseName = textValue("caseName");
+      const address = textValue("address");
+      const comment = `
+        本案「${caseName}」${address !== "-" ? "，標的位於「" + address + "」" : ""}，依目前輸入之取得成本、出售價格、取得相關費用、出售相關費用、土地增值稅及其他可扣除費用進行初步估算。
+        <br><br>
+        初步計算後，本案課稅所得約為 <strong>${formatMoney(data.taxableIncome)}</strong>，目前稅率判斷為 <strong>${data.rate ? formatPercent(data.rate) : "尚未判斷"}</strong>，預估房地合一稅約為 <strong>${formatMoney(data.taxAmount)}</strong>。
+        <br><br>
+        ${rateExplanation(data.rate, data.mode, data.years)}
+        <br><br>
+        本試算結果僅供成交前初步評估與溝通使用；實際申報仍需再確認完整買賣契約、成本憑證、費用憑證、土地增值稅資料、持有期間、自住或特殊稅率適用條件，並以國稅局最終核定為準。
+      `;
 
-      const buyCosts = sumByClass("buyCostItem");
-      const saleCosts = sumByClass("saleCostItem");
-
-      const holdingInfo = getHoldingInfo();
-      const rateMode = document.getElementById("rateMode").value;
-      const appliedRate = getAppliedRate();
-
-      if (!holdingInfo.valid) {
-        document.getElementById("holdingPeriodText").textContent = "持有期間：" + holdingInfo.label;
-        document.getElementById("autoRateText").textContent = "自動判斷稅率：尚未判斷";
-      } else {
-        document.getElementById("holdingPeriodText").textContent =
-          "持有期間：約 " + holdingInfo.years + " 年 " + holdingInfo.months + " 個月 " + holdingInfo.days + " 天";
-        document.getElementById("autoRateText").textContent =
-          "自動判斷稅率：" + holdingInfo.label;
-      }
-
-      document.getElementById("appliedRateText").textContent =
-        "目前套用稅率：" + formatPercent(appliedRate) + (rateMode === "manual" ? "（手動）" : "（自動）");
-
-      const taxableIncome = Math.max(salePrice - buyPrice - buyCosts - saleCosts, 0);
-      const taxAmount = taxableIncome * appliedRate;
-
-      const loanPayoff = getNumber("loanPayoff");
-      const otherCosts = getNumber("otherCosts");
-      const cashBack = salePrice - loanPayoff - taxAmount - saleCosts - otherCosts;
-
-      document.getElementById("buyCostsSubtotal").textContent = formatWan(buyCosts);
-      document.getElementById("saleCostsSubtotal").textContent = formatWan(saleCosts);
-
-      document.getElementById("salePriceResult").textContent = formatWan(salePrice);
-      document.getElementById("buyPriceResult").textContent = formatWan(buyPrice);
-      document.getElementById("buyCostsResult").textContent = formatWan(buyCosts);
-      document.getElementById("saleCostsResult").textContent = formatWan(saleCosts);
-      document.getElementById("taxableIncome").textContent = formatWan(taxableIncome);
-      document.getElementById("taxAmount").textContent = formatWan(taxAmount);
-
-      document.getElementById("cashSalePriceResult").textContent = formatWan(salePrice);
-      document.getElementById("loanPayoffResult").textContent = formatWan(loanPayoff);
-      document.getElementById("cashTaxAmountResult").textContent = formatWan(taxAmount);
-      document.getElementById("cashSaleCostsResult").textContent = formatWan(saleCosts);
-      document.getElementById("otherCostsResult").textContent = formatWan(otherCosts);
-      document.getElementById("cashBack").textContent = formatWan(cashBack);
+      document.getElementById("professionalComment").innerHTML = comment;
     }
 
     function clearForm() {
-      const inputs = document.querySelectorAll("input");
-      inputs.forEach(input => input.value = "");
+      const fields = [
+        "caseName",
+        "address",
+        "clientName",
+        "handler",
+        "estimateDate",
+        "memo",
+        "buyDate",
+        "sellDate",
+        "sellPrice",
+        "buyCost",
+        "buyExpense",
+        "sellExpense",
+        "landValueTax",
+        "otherDeduction",
+        "manualRate"
+      ];
 
-      document.getElementById("rateMode").value = "auto";
-      document.getElementById("manualTaxRate").value = "0.45";
+      fields.forEach(function(id) {
+        document.getElementById(id).value = "";
+      });
 
-      calculate();
+      document.getElementById("taxMode").value = "auto";
+
+      document.getElementById("holdingPeriod").textContent = "-";
+      document.getElementById("taxableIncome").textContent = "-";
+      document.getElementById("taxRate").textContent = "-";
+      document.getElementById("taxAmount").textContent = "-";
+
+      const reportIds = [
+        "rCaseName",
+        "rEstimateDate",
+        "rAddress",
+        "rClientName",
+        "rHandler",
+        "rMemo",
+        "rBuyDate",
+        "rSellDate",
+        "rSellPrice",
+        "rBuyCost",
+        "rBuyExpense",
+        "rSellExpense",
+        "rLandValueTax",
+        "rOtherDeduction",
+        "rHoldingPeriod",
+        "rTaxRate",
+        "rTaxableIncome",
+        "rTaxAmount",
+        "rNetAmount"
+      ];
+
+      reportIds.forEach(function(id) {
+        document.getElementById(id).textContent = "-";
+      });
+
+      document.getElementById("professionalComment").textContent = "請先輸入資料並按下「計算並產生報告」，系統將自動產生初步說明。";
+      setToday();
     }
 
-    document.querySelectorAll("input, select").forEach(el => {
-      el.addEventListener("input", calculate);
-      el.addEventListener("change", calculate);
-    });
+    function setToday() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      document.getElementById("estimateDate").value = `${yyyy}-${mm}-${dd}`;
+    }
 
-    calculate();
+    setToday();
   </script>
 </body>
 </html>
