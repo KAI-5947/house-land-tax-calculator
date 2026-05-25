@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>房地合一稅單機試算列印工具</title>
+  <title>房地合一稅單機試算列印工具 V1.1</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
@@ -46,6 +46,7 @@
       padding: 14px 16px;
       border-radius: 12px;
       line-height: 1.7;
+      font-weight: 700;
     }
 
     .grid {
@@ -67,6 +68,23 @@
       border: 1px solid #d1d5db;
       border-radius: 10px;
       font-size: 16px;
+    }
+
+    .helper {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .auto-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      line-height: 1.8;
     }
 
     .result {
@@ -116,6 +134,16 @@
       background: #f3f4f6;
     }
 
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+
     @media print {
       body {
         background: white;
@@ -141,7 +169,7 @@
 <body>
   <div class="container">
     <div class="card">
-      <h1>房地合一稅單機試算列印工具 V1</h1>
+      <h1>房地合一稅單機試算列印工具 V1.1</h1>
       <div class="notice">
         本工具為成交前初步試算參考，不連接資料庫、不儲存客戶資料。實際稅額仍應以國稅局申報資料、核定結果及正式稅單為準。
       </div>
@@ -154,23 +182,54 @@
           <label>案件名稱</label>
           <input id="caseName" placeholder="例如：德松路1-19號" />
         </div>
+
         <div>
           <label>客戶姓名</label>
           <input id="clientName" placeholder="可空白" />
         </div>
+
         <div>
           <label>不動產地址</label>
           <input id="propertyAddress" placeholder="輸入地址或地號" />
         </div>
+
         <div>
-          <label>適用稅率</label>
-          <select id="taxRate">
+          <label>稅率模式</label>
+          <select id="rateMode">
+            <option value="auto">依取得／出售日期自動判斷</option>
+            <option value="manual">手動選擇稅率</option>
+          </select>
+          <div class="helper">一般個人出售案件，可先使用自動判斷。特殊案件仍建議人工確認。</div>
+        </div>
+
+        <div>
+          <label>取得日期</label>
+          <input id="buyDate" type="date" />
+        </div>
+
+        <div>
+          <label>出售日期</label>
+          <input id="saleDate" type="date" />
+        </div>
+
+        <div>
+          <label>手動適用稅率</label>
+          <select id="manualTaxRate">
             <option value="0.45">2年內：45%</option>
             <option value="0.35">超過2年，未逾5年：35%</option>
             <option value="0.20">超過5年，未逾10年：20%</option>
             <option value="0.15">超過10年：15%</option>
             <option value="0.10">自住房地優惠超過400萬部分：10%</option>
           </select>
+        </div>
+
+        <div>
+          <label>自動判斷結果</label>
+          <div class="auto-box">
+            <div id="holdingPeriodText">持有期間：尚未輸入完整日期</div>
+            <div id="autoRateText">自動判斷稅率：尚未判斷</div>
+            <div id="appliedRateText">目前套用稅率：45%</div>
+          </div>
         </div>
       </div>
     </div>
@@ -182,14 +241,17 @@
           <label>出售價格（萬元）</label>
           <input id="salePrice" type="number" value="0" />
         </div>
+
         <div>
           <label>取得成本（萬元）</label>
           <input id="buyPrice" type="number" value="0" />
         </div>
+
         <div>
           <label>取得可減除成本（萬元）</label>
           <input id="buyCosts" type="number" value="0" />
         </div>
+
         <div>
           <label>出售可減除費用（萬元）</label>
           <input id="saleCosts" type="number" value="0" />
@@ -200,6 +262,22 @@
         <tr>
           <th>項目</th>
           <th>金額</th>
+        </tr>
+        <tr>
+          <td>出售價格</td>
+          <td id="salePriceResult">0 萬元</td>
+        </tr>
+        <tr>
+          <td>取得成本</td>
+          <td id="buyPriceResult">0 萬元</td>
+        </tr>
+        <tr>
+          <td>取得可減除成本</td>
+          <td id="buyCostsResult">0 萬元</td>
+        </tr>
+        <tr>
+          <td>出售可減除費用</td>
+          <td id="saleCostsResult">0 萬元</td>
         </tr>
         <tr>
           <td>課稅所得</td>
@@ -219,6 +297,7 @@
           <label>貸款塗銷金額（萬元）</label>
           <input id="loanPayoff" type="number" value="0" />
         </div>
+
         <div>
           <label>其他出售相關費用（萬元）</label>
           <input id="otherCosts" type="number" value="0" />
@@ -231,8 +310,58 @@
           <th>金額</th>
         </tr>
         <tr>
+          <td>出售價格</td>
+          <td id="cashSalePriceResult">0 萬元</td>
+        </tr>
+        <tr>
+          <td>貸款塗銷金額</td>
+          <td id="loanPayoffResult">0 萬元</td>
+        </tr>
+        <tr>
+          <td>房地合一稅</td>
+          <td id="cashTaxAmountResult">0 萬元</td>
+        </tr>
+        <tr>
+          <td>出售可減除費用</td>
+          <td id="cashSaleCostsResult">0 萬元</td>
+        </tr>
+        <tr>
+          <td>其他出售相關費用</td>
+          <td id="otherCostsResult">0 萬元</td>
+        </tr>
+        <tr>
           <td>預估售屋後可拿回現金</td>
           <td class="result" id="cashBack">0 萬元</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>四、稅率參考表</h2>
+      <table>
+        <tr>
+          <th>持有期間</th>
+          <th>適用稅率</th>
+        </tr>
+        <tr>
+          <td>2 年內</td>
+          <td>45%</td>
+        </tr>
+        <tr>
+          <td>超過 2 年，未逾 5 年</td>
+          <td>35%</td>
+        </tr>
+        <tr>
+          <td>超過 5 年，未逾 10 年</td>
+          <td>20%</td>
+        </tr>
+        <tr>
+          <td>超過 10 年</td>
+          <td>15%</td>
+        </tr>
+        <tr>
+          <td>自住房地優惠</td>
+          <td>400 萬以下免稅，超過部分 10%</td>
         </tr>
       </table>
     </div>
@@ -256,28 +385,149 @@
       }) + " 萬元";
     }
 
+    function formatPercent(rate) {
+      return Math.round(rate * 100) + "%";
+    }
+
+    function getDateValue(id) {
+      const value = document.getElementById(id).value;
+      if (!value) return null;
+      return new Date(value + "T00:00:00");
+    }
+
+    function getHoldingInfo() {
+      const buyDate = getDateValue("buyDate");
+      const saleDate = getDateValue("saleDate");
+
+      if (!buyDate || !saleDate) {
+        return {
+          valid: false,
+          years: 0,
+          months: 0,
+          days: 0,
+          rate: 0.45,
+          label: "尚未輸入完整日期"
+        };
+      }
+
+      if (saleDate < buyDate) {
+        return {
+          valid: false,
+          years: 0,
+          months: 0,
+          days: 0,
+          rate: 0.45,
+          label: "出售日期不可早於取得日期"
+        };
+      }
+
+      let years = saleDate.getFullYear() - buyDate.getFullYear();
+      let months = saleDate.getMonth() - buyDate.getMonth();
+      let days = saleDate.getDate() - buyDate.getDate();
+
+      if (days < 0) {
+        months -= 1;
+        const previousMonth = new Date(saleDate.getFullYear(), saleDate.getMonth(), 0);
+        days += previousMonth.getDate();
+      }
+
+      if (months < 0) {
+        years -= 1;
+        months += 12;
+      }
+
+      const totalMonths = years * 12 + months + (days > 0 ? 1 : 0);
+
+      let rate = 0.45;
+      let label = "2年內：45%";
+
+      if (totalMonths <= 24) {
+        rate = 0.45;
+        label = "2年內：45%";
+      } else if (totalMonths <= 60) {
+        rate = 0.35;
+        label = "超過2年，未逾5年：35%";
+      } else if (totalMonths <= 120) {
+        rate = 0.20;
+        label = "超過5年，未逾10年：20%";
+      } else {
+        rate = 0.15;
+        label = "超過10年：15%";
+      }
+
+      return {
+        valid: true,
+        years,
+        months,
+        days,
+        rate,
+        label
+      };
+    }
+
+    function getAppliedRate() {
+      const rateMode = document.getElementById("rateMode").value;
+      const holdingInfo = getHoldingInfo();
+
+      if (rateMode === "manual") {
+        return Number(document.getElementById("manualTaxRate").value);
+      }
+
+      return holdingInfo.rate;
+    }
+
     function calculate() {
       const salePrice = getNumber("salePrice");
       const buyPrice = getNumber("buyPrice");
       const buyCosts = getNumber("buyCosts");
       const saleCosts = getNumber("saleCosts");
-      const taxRate = Number(document.getElementById("taxRate").value);
+
+      const holdingInfo = getHoldingInfo();
+      const rateMode = document.getElementById("rateMode").value;
+      const appliedRate = getAppliedRate();
+
+      if (!holdingInfo.valid) {
+        document.getElementById("holdingPeriodText").textContent = "持有期間：" + holdingInfo.label;
+        document.getElementById("autoRateText").textContent = "自動判斷稅率：尚未判斷";
+      } else {
+        document.getElementById("holdingPeriodText").textContent =
+          "持有期間：約 " + holdingInfo.years + " 年 " + holdingInfo.months + " 個月 " + holdingInfo.days + " 天";
+        document.getElementById("autoRateText").textContent =
+          "自動判斷稅率：" + holdingInfo.label;
+      }
+
+      document.getElementById("appliedRateText").textContent =
+        "目前套用稅率：" + formatPercent(appliedRate) + (rateMode === "manual" ? "（手動）" : "（自動）");
 
       const taxableIncome = Math.max(salePrice - buyPrice - buyCosts - saleCosts, 0);
-      const taxAmount = taxableIncome * taxRate;
+      const taxAmount = taxableIncome * appliedRate;
 
       const loanPayoff = getNumber("loanPayoff");
       const otherCosts = getNumber("otherCosts");
       const cashBack = salePrice - loanPayoff - taxAmount - saleCosts - otherCosts;
 
+      document.getElementById("salePriceResult").textContent = formatWan(salePrice);
+      document.getElementById("buyPriceResult").textContent = formatWan(buyPrice);
+      document.getElementById("buyCostsResult").textContent = formatWan(buyCosts);
+      document.getElementById("saleCostsResult").textContent = formatWan(saleCosts);
       document.getElementById("taxableIncome").textContent = formatWan(taxableIncome);
       document.getElementById("taxAmount").textContent = formatWan(taxAmount);
+
+      document.getElementById("cashSalePriceResult").textContent = formatWan(salePrice);
+      document.getElementById("loanPayoffResult").textContent = formatWan(loanPayoff);
+      document.getElementById("cashTaxAmountResult").textContent = formatWan(taxAmount);
+      document.getElementById("cashSaleCostsResult").textContent = formatWan(saleCosts);
+      document.getElementById("otherCostsResult").textContent = formatWan(otherCosts);
       document.getElementById("cashBack").textContent = formatWan(cashBack);
     }
 
     function clearForm() {
       const inputs = document.querySelectorAll("input");
       inputs.forEach(input => input.value = "");
+
+      document.getElementById("rateMode").value = "auto";
+      document.getElementById("manualTaxRate").value = "0.45";
+
       calculate();
     }
 
