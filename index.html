@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>房地合一稅單機列印版 v1.5</title>
+  <title>房地合一稅單機列印版 v1.5.1</title>
   <style>
     :root {
       --primary: #1f4e5f;
@@ -387,8 +387,8 @@
     <section class="hero">
       <h1>房地合一稅單機列印版</h1>
       <p>專業報告版｜輸入案件資料後，自動試算稅額並產生 A4 列印報告。</p>
-      <p>v1.5 新增：必要欄位檢查、列印前確認摘要、內部初步試算提醒。</p>
-      <span class="version">v1.5 列印前確認與資料檢查版</span>
+      <p>v1.5.1 必要欄位檢查與列印確認修正版</p>
+      <span class="version">v1.5.1 必要欄位檢查與列印確認修正版</span>
     </section>
 
     <div class="grid">
@@ -574,7 +574,7 @@
     <section id="printReport" class="report">
       <div class="report-header">
         <h2>房地合一稅初步試算報告</h2>
-        <p>v1.5 列印前確認與資料檢查版｜本報告為成交前初步評估使用</p>
+        <p>v1.5.1 必要欄位檢查與列印確認修正版｜本報告為成交前初步評估使用</p>
         
       </div>
 
@@ -780,19 +780,26 @@
       return "尚未判斷。";
     }
 
-    function calculateTax() {
-            const requiredMissing = [];
+    function validateRequiredFields() {
+      const requiredMissing = [];
 
       if (textValue("caseName") === "-") {
         requiredMissing.push("案件名稱");
       }
 
-      if (!document.getElementById("buyDate").value) {
+      const buyDate = document.getElementById("buyDate").value;
+      const sellDate = document.getElementById("sellDate").value;
+
+      if (!buyDate) {
         requiredMissing.push("取得日期");
       }
 
-      if (!document.getElementById("sellDate").value) {
+      if (!sellDate) {
         requiredMissing.push("出售日期");
+      }
+
+      if (buyDate && sellDate && new Date(sellDate) < new Date(buyDate)) {
+        requiredMissing.push("出售日期不可早於取得日期");
       }
 
       if (numberValue("sellPrice") <= 0) {
@@ -808,9 +815,18 @@
       }
 
       if (requiredMissing.length > 0) {
-        alert("請先補齊必要欄位：\n\n" + requiredMissing.join("\n"));
+        alert("請先補齊必要欄位：\n" + requiredMissing.join("\n"));
+        return false;
+      }
+
+      return true;
+    }
+
+    function calculateTax() {
+      if (!validateRequiredFields()) {
         return;
       }
+
       const sellPrice = numberValue("sellPrice");
       const buyCost = numberValue("buyCost");
       const buyExpense = numberValue("buyExpense");
@@ -863,6 +879,27 @@
         years,
         mode
       });
+    }
+
+    function printReportWithConfirm() {
+      if (!validateRequiredFields()) {
+        return;
+      }
+
+      const confirmText =
+        "列印前請再次確認：\n\n" +
+        "1. 案件名稱是否正確\n" +
+        "2. 取得日期與出售日期是否正確\n" +
+        "3. 預估成交總價是否正確\n" +
+        "4. 取得成本、相關費用與土地增值稅是否正確\n" +
+        "5. 稅率模式是否正確\n\n" +
+        "確認後要列印 A4 報告嗎？";
+
+      const confirmed = confirm(confirmText);
+
+      if (confirmed) {
+        window.print();
+      }
     }
 
     function buildRiskReminders(data) {
@@ -1005,23 +1042,6 @@
     }
 
     function clearForm() {
-          function printReportWithConfirm() {
-      const confirmText =
-        "列印前請再次確認：\n\n" +
-        "1. 案件名稱是否正確\n" +
-        "2. 取得日期與出售日期是否正確\n" +
-        "3. 預估成交總價是否正確\n" +
-        "4. 取得成本、相關費用與土地增值稅是否正確\n" +
-        "5. 稅率模式是否正確\n\n" +
-        "確認後要列印 A4 報告嗎？";
-
-      const confirmed = confirm(confirmText);
-
-      if (confirmed) {
-        window.print();
-      }
-    }
-
       const fields = [
         "caseName",
         "address",
